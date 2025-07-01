@@ -50,33 +50,42 @@ const LotteryLayout = () => {
   const lastKnownRound = useAppSelector(selectLastKnownRound);
 
   useEffect(() => {
-    if (algod && indexer) {
+    if (algod && indexer && manager && manager.trim() !== "") {
       const doit = async () => {
         setIsLoading(true);
 
-        const r = await indexer
-          .lookupAccountCreatedApplications(manager)
-          .includeAll(true)
-          .limit(1000)
-          .do();
+        try {
+          const r = await indexer
+            .lookupAccountCreatedApplications(manager)
+            .includeAll(true)
+            .limit(1000)
+            .do();
 
-        // sort by created-at-round descending
-        const sorted = r["applications"].sort((a: any, b: any) => {
-          return b["created-at-round"] - a["created-at-round"];
-        });
+          // sort by created-at-round descending
+          const sorted = r["applications"].sort((a: any, b: any) => {
+            return b["created-at-round"] - a["created-at-round"];
+          });
 
-        const filtered = sorted.filter((v: any) => {
-          return !blacklistedAlgogemsApps.includes(v.id);
-        });
+          const filtered = sorted.filter((v: any) => {
+            return !blacklistedAlgogemsApps.includes(v.id);
+          });
 
-        setApplications(filtered);
+          setApplications(filtered);
+        } catch (error) {
+          console.error("Error fetching lottery applications:", error);
+          setApplications([]);
+        }
 
         setIsLoading(false);
       };
 
       doit();
+    } else {
+      // If manager address is not set, clear applications and stop loading
+      setApplications([]);
+      setIsLoading(false);
     }
-  }, [algod, indexer]);
+  }, [algod, indexer, manager]);
 
   return (
     <Container sx={{ my: 2, pb: 2 }}>
