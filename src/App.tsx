@@ -35,33 +35,16 @@ import { Notification } from "./app/Notification";
 import { ConnectWalletModal } from "./components/ConnectWalletModal";
 import SignTransactionModal from "./components/SignTransactionModal";
 import { RouletteIndex } from "./routes/roulette";
+import { MockWalletProvider } from "./components/MockWalletProvider";
 
 const darkTheme = createTheme({
   palette: {
-    // background: {
-    //   default: "skyblue",
-    // },
     mode: "dark",
     primary: {
       main: "#edbc50",
-      contrastText: "#fff", //button text white instead of black
+      contrastText: "#fff",
     },
-    // secondary: {
-    //   light: "#0066ff",
-    //   main: "#0044ff",
-    //   // dark: will be calculated from palette.secondary.main,
-    //   contrastText: "#ffcc00",
-    // },
-    text: {
-      //primary: "#fff",
-    },
-    // Used by `getContrastText()` to maximize the contrast between
-    // the background and the text.
-    // contrastThreshold: 3,
-    // // Used by the functions below to shift a color's luminance by approximately
-    // // two indexes within its tonal palette.
-    // // E.g., shift from Red 500 to Red 300 or Red 700.
-    // tonalOffset: 0.2,
+    text: {},
   },
   typography: {
     fontFamily: "Poppins",
@@ -89,6 +72,9 @@ const walletManager = new WalletManager({
 // Create a client
 const queryClient = new QueryClient();
 
+// Check if we're in mock mode
+const IS_MOCK_MODE = import.meta.env.VITE_MOCK_WALLET_MODE === 'true';
+
 function App() {
   const [isLoading, setIsLoading] = React.useState(false);
   const dispatch = useAppDispatch();
@@ -97,12 +83,20 @@ function App() {
     const getAlgodStatus = async () => {
       setIsLoading(true);
 
-      const lastRound = await getLastRound();
-
-      dispatch(setLastKnownRound(lastRound));
+      try {
+        const lastRound = await getLastRound();
+        dispatch(setLastKnownRound(lastRound));
+      } catch (error) {
+        console.error("Error fetching last round:", error);
+        // Set a mock round number for testing
+        if (IS_MOCK_MODE) {
+          dispatch(setLastKnownRound(30000000));
+        }
+      }
 
       setIsLoading(false);
     };
+    
     (async () => {
       await getAlgodStatus();
     })();
@@ -112,54 +106,60 @@ function App() {
     }, 10_000);
 
     return () => clearInterval(interval);
+  }, [dispatch]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const AppContent = () => (
+    <ThemeProvider theme={darkTheme}>
+      <QueryClientProvider client={queryClient}>
+        <CssBaseline />
+        <Notification />
+        <ConnectWalletModal />
+        <SignTransactionModal />
+        <BrowserRouter>
+          <TopBar>
+            <Routes>
+              <Route path="/nftBuyback" element={<NFTBuyback />} />
+              <Route path="/nftRefund" element={<CasinoRefund />} />
+              <Route path="/house" element={<HouseStaking />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+
+              <Route path="/lottery" element={<LotteryLayout />}>
+                <Route path="" element={<LotteryIndex />} />
+                <Route path=":appId" element={<LotteryView />} />
+              </Route>
+
+              <Route path="coinFlip" element={<CoinFlipIndex />} />
+              <Route path="roulette" element={<RouletteIndex />} />
+
+              <Route path="" element={<Navigate to="/lottery" />} />
+              <Route path="/help" element={<Help />} />
+              <Route
+                path="*"
+                element={
+                  <Container sx={{ p: 2 }}>
+                    <p>Whatever you are looking for, it is not here!</p>
+                  </Container>
+                }
+              />
+            </Routes>
+          </TopBar>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+
+  if (IS_MOCK_MODE) {
+    return (
+      <MockWalletProvider>
+        <AppContent />
+      </MockWalletProvider>
+    );
+  }
 
   return (
-    <ThemeProvider theme={darkTheme}>
-      <WalletProvider manager={walletManager}>
-        <QueryClientProvider client={queryClient}>
-          <CssBaseline />
-          {/* Notification Snackbar */}
-          <Notification />
-          {/* Wallet Connect Modal */}
-          <ConnectWalletModal />
-          {/* Sign Transaction Modal */}
-          <SignTransactionModal />
-          <BrowserRouter>
-            <TopBar>
-              <Routes>
-                <Route path="/nftBuyback" element={<NFTBuyback />} />
-                <Route path="/nftRefund" element={<CasinoRefund />} />
-                <Route path="/house" element={<HouseStaking />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
-
-                <Route path="/lottery" element={<LotteryLayout />}>
-                  <Route path="" element={<LotteryIndex />} />
-                  <Route path=":appId" element={<LotteryView />} />
-                </Route>
-
-                <Route path="coinFlip" element={<CoinFlipIndex />} />
-                <Route path="roulette" element={<RouletteIndex />} />
-
-                <Route path="" element={<Navigate to="/lottery" />} />
-                <Route path="/help" element={<Help />} />
-                <Route
-                  path="*"
-                  element={
-                    <Container sx={{ p: 2 }}>
-                      <p>Whatever you are looking for, it is not here!</p>
-                    </Container>
-                  }
-                />
-              </Routes>
-            </TopBar>
-            {/* <Footer /> */}
-          </BrowserRouter>
-        </QueryClientProvider>
-      </WalletProvider>
-    </ThemeProvider>
+    <WalletProvider manager={walletManager}>
+      <AppContent />
+    </WalletProvider>
   );
 }
 

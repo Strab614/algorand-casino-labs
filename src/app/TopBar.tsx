@@ -49,6 +49,9 @@ import {
 import { useWallet } from "@txnlab/use-wallet-react";
 import { WalletPopover } from "./WalletPopover";
 import AlgorandNetwork from "./NetworkSelect";
+import { MockWalletButton } from "@/components/MockWalletButton";
+
+const IS_MOCK_MODE = import.meta.env.VITE_MOCK_WALLET_MODE === 'true';
 
 const WalletButton = () => {
   const dispatch = useAppDispatch();
@@ -69,6 +72,11 @@ const WalletButton = () => {
   const open = Boolean(anchorEl);
 
   const id = open ? "wallet-btn-popover" : undefined;
+
+  // Show mock wallet button in mock mode
+  if (IS_MOCK_MODE) {
+    return <MockWalletButton />;
+  }
 
   return (
     <>
@@ -145,20 +153,14 @@ const navigationLinks: NavigationLink[] = [
 const drawerWidth = 240;
 
 export interface Props {
-  /**
-   * Injected by the documentation to work in an iframe.
-   * You won't need it on your project.
-   */
   window?: () => Window;
-
-  // children to render in content area
   children: React.ReactNode;
 }
 
 export default function ResponsiveDrawer(props: Props) {
   const theme = useTheme();
   const dispatch = useAppDispatch();
-  const { activeAddress } = useWallet();
+  const { activeAddress } = IS_MOCK_MODE ? { activeAddress: null } : useWallet();
   const [nfd, setNFD] = useState<string>();
 
   const [isSidesheetOpen, setIsSidesheetOpen] = useState(false);
@@ -169,7 +171,7 @@ export default function ResponsiveDrawer(props: Props) {
 
   useEffect(() => {
     const doit = async () => {
-      if (activeAddress) {
+      if (activeAddress && !IS_MOCK_MODE) {
         const name = await lookupNFDByAddress(activeAddress);
         if (name) {
           setNFD(name);
@@ -186,11 +188,10 @@ export default function ResponsiveDrawer(props: Props) {
     }
 
     doit();
-  }, [activeAddress]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeAddress, dispatch, nfd]);
 
   const handleDrawerToggle = () => {
     setIsSidesheetOpen(!isSidesheetOpen);
-    //dispatch(setIsSidesheetOpen(!isSidesheetOpen));
   };
 
   const drawer = (
@@ -215,7 +216,6 @@ export default function ResponsiveDrawer(props: Props) {
           <ListItemText primary="Games" />
           {isGamesOpen ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
-        {/* games collapse menu */}
         <Collapse in={isGamesOpen} timeout="auto" unmountOnExit>
           <Link
             to={"/coinFlip"}
@@ -366,7 +366,6 @@ export default function ResponsiveDrawer(props: Props) {
           >
             <MenuIcon />
           </IconButton>
-          {/* Logo */}
           <div style={{ display: "flex", flex: 1, alignItems: "center" }}>
             <AsaIcon asaId={388592191} size={40} />
             <Typography
@@ -389,14 +388,13 @@ export default function ResponsiveDrawer(props: Props) {
         }}
         aria-label="nav drawer"
       >
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Drawer
           container={container}
           variant="temporary"
           open={isSidesheetOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true,
           }}
           sx={{
             display: { xs: "block", sm: "none" },
