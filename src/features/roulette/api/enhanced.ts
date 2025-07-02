@@ -13,6 +13,16 @@ import { tupleArrayToRouletteBets } from "../utils";
 const ALGORAND_ZERO_ADDRESS_STRING =
   "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ";
 
+// Global state interface - moved outside of class
+export interface RouletteGlobalState {
+  manager: string;
+  betAsset: bigint | number;
+  minBet: bigint | number;
+  maxBet: bigint | number;
+  prizePool: bigint | number;
+  fees: bigint | number;
+}
+
 /**
  * Enhanced Roulette API with modern Algorand SDK integration
  */
@@ -26,16 +36,6 @@ export class EnhancedRouletteAPI {
       algodConfig: this.config.algodConfig,
       indexerConfig: this.config.indexerConfig,
     });
-  }
-
-  // Global state interface
-  export interface RouletteGlobalState {
-    manager: string;
-    betAsset: bigint | number;
-    minBet: bigint | number;
-    maxBet: bigint | number;
-    prizePool: bigint | number;
-    fees: bigint | number;
   }
 
   /**
