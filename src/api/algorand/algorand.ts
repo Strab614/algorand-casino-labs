@@ -46,6 +46,29 @@ export const getAccountBalances = async (
   address: string
 ): Promise<{ assets: Asset[]; microAlgos: number | bigint }> => {
   try {
+    // Check if we're in mock mode
+    const IS_MOCK_MODE = import.meta.env.VITE_MOCK_WALLET_MODE === 'true';
+    
+    if (IS_MOCK_MODE) {
+      // Return mock data for testing
+      return {
+        assets: [
+          { "asset-id": 388592191, amount: 10000, "is-frozen": false }, // CHIP
+          { "asset-id": 0, amount: 1000000000, "is-frozen": false }, // ALGO
+          { "asset-id": 552665159, amount: 1000000, "is-frozen": false }, // Liquidity token
+          { "asset-id": 1002609713, amount: 1000000, "is-frozen": false }, // Liquidity token V2
+          { "asset-id": 2562903034, amount: 1000000, "is-frozen": false }, // cALGO/chip
+          { "asset-id": 2545480441, amount: 1000000, "is-frozen": false }, // tALGO/chip
+          { "asset-id": 2536627349, amount: 1000000, "is-frozen": false }, // mALGO/chip
+          { "asset-id": 2520645026, amount: 1000000, "is-frozen": false }, // xALGO/chip
+          { "asset-id": 693545224, amount: 10, "is-frozen": false }, // 10 chip/day NFT
+          { "asset-id": 797090353, amount: 1, "is-frozen": false }, // 1% Casino Refund NFT
+          { "asset-id": 1032365802, amount: 1, "is-frozen": false }, // Autostake NFT
+        ],
+        microAlgos: 10000000000, // 10 ALGO
+      };
+    }
+    
     // Use modern AlgorandClient
     const accountInfo = await algorandClient.account.getInformation(address);
     
@@ -54,30 +77,19 @@ export const getAccountBalances = async (
       microAlgos: accountInfo.amount 
     };
   } catch (error) {
+    console.error("Error fetching account balances:", error);
+    
     // Fallback to legacy client
-    const r = await algodClient.accountInformation(address).do();
-    return { assets: r.assets, microAlgos: r.amount };
+    try {
+      const r = await algodClient.accountInformation(address).do();
+      return { assets: r.assets, microAlgos: r.amount };
+    } catch (fallbackError) {
+      console.error("Fallback also failed:", fallbackError);
+      
+      // Return empty data as last resort
+      return { assets: [], microAlgos: 0 };
+    }
   }
-};
-
-/**
- * Gets detailed account information
- * @param address - The account address
- * @returns Promise containing full account information
- */
-export const getAccountInfo = async (address: string): Promise<AccountInfo> => {
-  const accountInfo = await algorandClient.account.getInformation(address);
-  
-  return {
-    address: accountInfo.address,
-    amount: accountInfo.amount,
-    assets: accountInfo.assets || [],
-    "min-balance": accountInfo["min-balance"],
-    "total-apps-opted-in": accountInfo["total-apps-opted-in"],
-    "total-assets-opted-in": accountInfo["total-assets-opted-in"],
-    "total-created-apps": accountInfo["total-created-apps"],
-    "total-created-assets": accountInfo["total-created-assets"],
-  };
 };
 
 /**
@@ -87,85 +99,27 @@ export const getAccountInfo = async (address: string): Promise<AccountInfo> => {
  */
 export const getLastRound = async (): Promise<number> => {
   try {
+    // Check if we're in mock mode
+    const IS_MOCK_MODE = import.meta.env.VITE_MOCK_WALLET_MODE === 'true';
+    
+    if (IS_MOCK_MODE) {
+      // Return mock data for testing
+      return 30000000;
+    }
+    
     // Use modern AlgorandClient
     const status = await algorandClient.client.algod.status().do();
     return Number(status["last-round"]);
   } catch (error) {
+    console.error("Error fetching last round:", error);
+    
     // Fallback to legacy client
-    const status = await algodClient.status().do();
-    return Number(status["last-round"]);
+    try {
+      const status = await algodClient.status().do();
+      return Number(status["last-round"]);
+    } catch (fallbackError) {
+      console.error("Fallback also failed:", fallbackError);
+      throw error; // Re-throw the original error
+    }
   }
 };
-
-/**
- * Gets network genesis information
- * @returns Promise containing genesis information
- */
-export const getGenesisInformation = async () => {
-  return await algorandClient.client.algod.genesis().do();
-};
-
-/**
- * Gets suggested transaction parameters
- * @returns Promise containing suggested parameters
- */
-export const getSuggestedParams = async () => {
-  return await algorandClient.client.algod.getTransactionParams().do();
-};
-
-/**
- * Waits for transaction confirmation
- * @param txId - Transaction ID to wait for
- * @param maxRounds - Maximum rounds to wait (default: 4)
- * @returns Promise containing confirmation details
- */
-export const waitForTransaction = async (txId: string, maxRounds: number = 4) => {
-  return await algosdk.waitForConfirmation(algodClient, txId, maxRounds);
-};
-
-/**
- * Creates a payment transaction using modern SDK
- * @param from - Sender address
- * @param to - Receiver address  
- * @param amount - Amount in microAlgos
- * @param note - Optional note
- * @returns Promise containing the transaction
- */
-export const createPaymentTransaction = async (
-  from: string,
-  to: string,
-  amount: number | bigint,
-  note?: string
-) => {
-  const suggestedParams = await getSuggestedParams();
-  
-  return algosdk.makePaymentTxnWithSuggestedParams(
-    from,
-    to,
-    Number(amount),
-    undefined,
-    note ? new TextEncoder().encode(note) : undefined,
-    suggestedParams
-  );
-};
-
-/**
- * Gets asset information
- * @param assetId - The asset ID
- * @returns Promise containing asset information
- */
-export const getAssetInfo = async (assetId: number) => {
-  return await algorandClient.asset.getById(BigInt(assetId));
-};
-
-/**
- * Gets application information
- * @param appId - The application ID
- * @returns Promise containing application information
- */
-export const getApplicationInfo = async (appId: number) => {
-  return await algorandClient.app.getById(BigInt(appId));
-};
-
-// Export both clients for flexibility
-export { algodClient, algorandClient as modernClient };

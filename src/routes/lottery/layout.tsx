@@ -135,7 +135,56 @@ const LotteryLayout = () => {
             type: "error",
             message: `Error fetching lottery applications: ${error instanceof Error ? error.message : 'Unknown error'}`
           });
-          setApplications([]);
+          
+          // In case of error, provide mock data in mock mode
+          if (import.meta.env.VITE_MOCK_WALLET_MODE === 'true') {
+            setApplications([
+              {
+                id: 12345678,
+                "created-at-round": lastKnownRound - 1000,
+                "deleted": false,
+                params: {
+                  creator: manager,
+                  "global-state": [
+                    {
+                      key: "bmE=", // "na" in base64
+                      value: { bytes: "TG90dGVyeSAjMQ==", type: 1 } // "Lottery #1" in base64
+                    },
+                    {
+                      key: "bWE=", // "ma" in base64
+                      value: { bytes: "WlpBRjVBUkE0TUVDNVBWRE9QNjRKTTVPNU1RU1Q2M1EyS09ZMkZMWUZMWFhEM1BGU05KSkJZQUZaTA==", type: 1 }
+                    },
+                    {
+                      key: "YXM=", // "as" in base64
+                      value: { uint: 388592191, type: 2 }
+                    },
+                    {
+                      key: "dHA=", // "tp" in base64
+                      value: { uint: 1000, type: 2 }
+                    },
+                    {
+                      key: "cHA=", // "pp" in base64
+                      value: { uint: 100000, type: 2 }
+                    },
+                    {
+                      key: "ZXI=", // "er" in base64
+                      value: { uint: lastKnownRound + 5000, type: 2 }
+                    },
+                    {
+                      key: "ZHI=", // "dr" in base64
+                      value: { uint: lastKnownRound + 10000, type: 2 }
+                    },
+                    {
+                      key: "dHM=", // "ts" in base64
+                      value: { uint: 50, type: 2 }
+                    }
+                  ]
+                }
+              }
+            ] as []);
+          } else {
+            setApplications([]);
+          }
         }
 
         setIsLoading(false);

@@ -1,5 +1,5 @@
-import { Roulette } from "@/features/roulette/components/Roulette";
+import { EnhancedRoulette } from "@/features/roulette/components/EnhancedRoulette";
 
 export const RouletteIndex = () => {
-  return <Roulette />;
+  return <EnhancedRoulette />;
 };

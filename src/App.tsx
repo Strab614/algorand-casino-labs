@@ -29,13 +29,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import React, { useEffect } from "react";
 import { useAppDispatch } from "./app/hooks";
-import { setLastKnownRound } from "./features/appSlice";
+import { setLastKnownRound, setNetworkHealth } from "./features/appSlice";
 import { getLastRound } from "./api/algorand/algorand";
 import { Notification } from "./app/Notification";
 import { ConnectWalletModal } from "./components/ConnectWalletModal";
 import SignTransactionModal from "./components/SignTransactionModal";
 import { RouletteIndex } from "./routes/roulette";
 import { MockWalletProvider } from "./components/MockWalletProvider";
+import CasinoEventListener from "./components/CasinoEventListener";
 
 const darkTheme = createTheme({
   palette: {
@@ -86,8 +87,11 @@ function AppContent() {
       try {
         const lastRound = await getLastRound();
         dispatch(setLastKnownRound(lastRound));
+        dispatch(setNetworkHealth({ algod: true, indexer: true }));
       } catch (error) {
         console.error("Error fetching last round:", error);
+        dispatch(setNetworkHealth({ algod: false, indexer: false }));
+        
         // Set a mock round number for testing
         if (IS_MOCK_MODE) {
           dispatch(setLastKnownRound(30000000));
@@ -115,35 +119,37 @@ function AppContent() {
         <Notification />
         <ConnectWalletModal />
         <SignTransactionModal />
-        <BrowserRouter>
-          <TopBar>
-            <Routes>
-              <Route path="/nftBuyback" element={<NFTBuyback />} />
-              <Route path="/nftRefund" element={<CasinoRefund />} />
-              <Route path="/house" element={<HouseStaking />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
+        <CasinoEventListener>
+          <BrowserRouter>
+            <TopBar>
+              <Routes>
+                <Route path="/nftBuyback" element={<NFTBuyback />} />
+                <Route path="/nftRefund" element={<CasinoRefund />} />
+                <Route path="/house" element={<HouseStaking />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
 
-              <Route path="/lottery" element={<LotteryLayout />}>
-                <Route path="" element={<LotteryIndex />} />
-                <Route path=":appId" element={<LotteryView />} />
-              </Route>
+                <Route path="/lottery" element={<LotteryLayout />}>
+                  <Route path="" element={<LotteryIndex />} />
+                  <Route path=":appId" element={<LotteryView />} />
+                </Route>
 
-              <Route path="coinFlip" element={<CoinFlipIndex />} />
-              <Route path="roulette" element={<RouletteIndex />} />
+                <Route path="coinFlip" element={<CoinFlipIndex />} />
+                <Route path="roulette" element={<RouletteIndex />} />
 
-              <Route path="" element={<Navigate to="/lottery" />} />
-              <Route path="/help" element={<Help />} />
-              <Route
-                path="*"
-                element={
-                  <Container sx={{ p: 2 }}>
-                    <p>Whatever you are looking for, it is not here!</p>
-                  </Container>
-                }
-              />
-            </Routes>
-          </TopBar>
-        </BrowserRouter>
+                <Route path="" element={<Navigate to="/lottery" />} />
+                <Route path="/help" element={<Help />} />
+                <Route
+                  path="*"
+                  element={
+                    <Container sx={{ p: 2 }}>
+                      <p>Whatever you are looking for, it is not here!</p>
+                    </Container>
+                  }
+                />
+              </Routes>
+            </TopBar>
+          </BrowserRouter>
+        </CasinoEventListener>
       </QueryClientProvider>
     </ThemeProvider>
   );

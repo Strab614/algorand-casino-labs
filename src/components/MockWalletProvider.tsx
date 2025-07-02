@@ -24,11 +24,13 @@ export const MockWalletProvider: React.FC<MockWalletProviderProps> = ({ children
   const [activeAddress, setActiveAddress] = useState<string | null>(null);
 
   const connect = useCallback(() => {
+    console.log('Mock wallet: Connecting');
     setIsConnected(true);
     setActiveAddress(mockAddress);
   }, []);
 
   const disconnect = useCallback(() => {
+    console.log('Mock wallet: Disconnecting');
     setIsConnected(false);
     setActiveAddress(null);
   }, []);
