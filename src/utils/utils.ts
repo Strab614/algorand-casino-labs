@@ -1,6 +1,6 @@
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
-import algosdk, { ABIStringType, microalgosToAlgos, algosToMicroalgos } from "algosdk";
+import * as algosdk from "algosdk";
 import { algorandClient } from "@/api/algorand/algorand";
 
 TimeAgo.addDefaultLocale(en);
@@ -33,7 +33,7 @@ export function formattedAssetAmount(
 
   switch (Number(assetId)) {
     case 0: // ALGO
-      ret = microalgosToAlgos(Number(amount)).toLocaleString("en", {
+      ret = algosdk.microalgosToAlgos(Number(amount)).toLocaleString("en", {
         maximumFractionDigits: 6,
         minimumFractionDigits: 0,
       });
@@ -58,11 +58,11 @@ export function formattedAssetAmount(
 
 // Enhanced asset utilities
 export function algoToMicroAlgo(algo: number): number {
-  return algosToMicroalgos(algo);
+  return algosdk.algosToMicroalgos(algo);
 }
 
 export function microAlgoToAlgo(microAlgo: number): number {
-  return microalgosToAlgos(microAlgo);
+  return algosdk.microalgosToAlgos(microAlgo);
 }
 
 type Asset = {
@@ -155,7 +155,7 @@ export const lookupNFDByAddress = async (address: string): Promise<string | unde
 
 // Utility to decode arc4 strings (they are prefixed with a 2 byte length)
 export function decodeArc4String(b: Uint8Array): string {
-  return new ABIStringType().decode(b);
+  return new algosdk.ABIStringType().decode(b);
 }
 
 /**

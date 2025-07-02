@@ -1,16 +1,5 @@
 import { AlgorandClient } from "@algorandfoundation/algokit-utils";
-import { 
-  algosdk, 
-  Account, 
-  Transaction,
-  SuggestedParams,
-  makePaymentTxnWithSuggestedParams,
-  makeAssetTransferTxnWithSuggestedParams,
-  makeApplicationCallTxnFromObject,
-  waitForConfirmation,
-  microalgosToAlgos,
-  algosToMicroalgos,
-} from "algosdk";
+import * as algosdk from "algosdk";
 import { getNetworkConfig } from "@/utils/network";
 
 // Enhanced Algorand client with modern SDK features
@@ -39,7 +28,7 @@ class EnhancedAlgorandClient {
   async getAccountBalance(address: string) {
     const info = await this.getAccountInfo(address);
     return {
-      algo: microalgosToAlgos(info.amount),
+      algo: algosdk.microalgosToAlgos(info.amount),
       microAlgo: info.amount,
     };
   }
@@ -75,7 +64,7 @@ class EnhancedAlgorandClient {
   }
 
   // Transaction operations
-  async getSuggestedParams(): Promise<SuggestedParams> {
+  async getSuggestedParams(): Promise<algosdk.SuggestedParams> {
     return await this.client.client.algod.getTransactionParams().do();
   }
 
@@ -84,10 +73,10 @@ class EnhancedAlgorandClient {
     to: string,
     amount: number | bigint,
     note?: string
-  ): Promise<Transaction> {
+  ): Promise<algosdk.Transaction> {
     const suggestedParams = await this.getSuggestedParams();
     
-    return makePaymentTxnWithSuggestedParams(
+    return algosdk.makePaymentTxnWithSuggestedParams(
       from,
       to,
       Number(amount),
@@ -103,10 +92,10 @@ class EnhancedAlgorandClient {
     assetId: number | bigint,
     amount: number | bigint,
     note?: string
-  ): Promise<Transaction> {
+  ): Promise<algosdk.Transaction> {
     const suggestedParams = await this.getSuggestedParams();
     
-    return makeAssetTransferTxnWithSuggestedParams(
+    return algosdk.makeAssetTransferTxnWithSuggestedParams(
       from,
       to,
       undefined,
@@ -127,10 +116,10 @@ class EnhancedAlgorandClient {
     foreignApps?: number[],
     foreignAssets?: number[],
     note?: string
-  ): Promise<Transaction> {
+  ): Promise<algosdk.Transaction> {
     const suggestedParams = await this.getSuggestedParams();
     
-    return makeApplicationCallTxnFromObject({
+    return algosdk.makeApplicationCallTxnFromObject({
       from,
       appIndex: Number(appId),
       onComplete,
@@ -149,7 +138,7 @@ class EnhancedAlgorandClient {
   }
 
   async waitForConfirmation(txId: string, maxRounds: number = 4) {
-    return await waitForConfirmation(this.client.client.algod, txId, maxRounds);
+    return await algosdk.waitForConfirmation(this.client.client.algod, txId, maxRounds);
   }
 
   // Network operations
@@ -203,11 +192,11 @@ class EnhancedAlgorandClient {
 
   // Utility methods
   convertToMicroAlgos(algos: number): number {
-    return algosToMicroalgos(algos);
+    return algosdk.algosToMicroalgos(algos);
   }
 
   convertToAlgos(microAlgos: number): number {
-    return microalgosToAlgos(microAlgos);
+    return algosdk.microalgosToAlgos(microAlgos);
   }
 
   isValidAddress(address: string): boolean {
@@ -257,17 +246,11 @@ export const enhancedAlgorandClient = new EnhancedAlgorandClient();
 
 // Export types for better TypeScript support
 export type {
-  Account,
-  Transaction,
-  SuggestedParams,
+  algosdk.Account as Account,
+  algosdk.Transaction as Transaction,
+  algosdk.SuggestedParams as SuggestedParams,
 };
 
 export {
   algosdk,
-  makePaymentTxnWithSuggestedParams,
-  makeAssetTransferTxnWithSuggestedParams,
-  makeApplicationCallTxnFromObject,
-  waitForConfirmation,
-  microalgosToAlgos,
-  algosToMicroalgos,
 };

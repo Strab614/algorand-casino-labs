@@ -1,5 +1,5 @@
 import { getAlgodConfigFromViteEnvironment } from "@/utils/network";
-import { Algodv2, Account, makePaymentTxnWithSuggestedParams, waitForConfirmation } from "algosdk";
+import * as algosdk from "algosdk";
 import { AlgorandClient } from "@algorandfoundation/algokit-utils";
 
 const algodConfig = getAlgodConfigFromViteEnvironment();
@@ -14,7 +14,7 @@ export const algorandClient = AlgorandClient.fromConfig({
 });
 
 // Legacy algod client for backward compatibility
-const algodClient = new Algodv2(
+const algodClient = new algosdk.Algodv2(
   algodConfig.token as string,
   algodConfig.server,
   algodConfig.port
@@ -120,7 +120,7 @@ export const getSuggestedParams = async () => {
  * @returns Promise containing confirmation details
  */
 export const waitForTransaction = async (txId: string, maxRounds: number = 4) => {
-  return await waitForConfirmation(algodClient, txId, maxRounds);
+  return await algosdk.waitForConfirmation(algodClient, txId, maxRounds);
 };
 
 /**
@@ -139,7 +139,7 @@ export const createPaymentTransaction = async (
 ) => {
   const suggestedParams = await getSuggestedParams();
   
-  return makePaymentTxnWithSuggestedParams(
+  return algosdk.makePaymentTxnWithSuggestedParams(
     from,
     to,
     Number(amount),
