@@ -1,7 +1,8 @@
 import { AlertColor } from "@mui/material";
 import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
-import { Algodv2, Indexer } from "algosdk";
+import { AlgorandClient } from "@algorandfoundation/algokit-utils";
+import { getNetworkConfig } from "@/utils/network";
 
 export interface AppState {
   // wallet select modal
@@ -18,9 +19,19 @@ export interface AppState {
   isSignTxnOpen: boolean;
 
   // which network?
-  network: "mainnet" | "testnet" | "localnet";
+  network: "mainnet" | "testnet" | "localnet" | "betanet";
 
   lastKnownRound: number;
+
+  // connection status
+  isConnected: boolean;
+  
+  // network health
+  networkHealth: {
+    algod: boolean;
+    indexer: boolean;
+    lastChecked: number;
+  };
 }
 
 const initialState: AppState = {
@@ -30,9 +41,17 @@ const initialState: AppState = {
 
   isSignTxnOpen: false,
 
-  network: "mainnet", // should be mainnet
+  network: "mainnet",
 
   lastKnownRound: 0,
+
+  isConnected: false,
+
+  networkHealth: {
+    algod: false,
+    indexer: false,
+    lastChecked: 0,
+  },
 };
 
 export const appSlice = createSlice({
@@ -60,6 +79,15 @@ export const appSlice = createSlice({
     setLastKnownRound: (state, action) => {
       state.lastKnownRound = action.payload;
     },
+    setIsConnected: (state, action) => {
+      state.isConnected = action.payload;
+    },
+    setNetworkHealth: (state, action) => {
+      state.networkHealth = {
+        ...action.payload,
+        lastChecked: Date.now(),
+      };
+    },
   },
 });
 
@@ -73,27 +101,37 @@ export const selectIsSignTxnOpen = (state: RootState) =>
 
 export const selectNotification = (state: RootState) => state.app.notification;
 
-export const selectNetworkClients = (state: RootState) => {
-  const network = state.app.network;
-
-  return network === "testnet"
-    ? {
-        algod: new Algodv2("", "https://testnet-api.algonode.cloud", ""),
-        indexer: new Indexer("", "https://testnet-idx.algonode.cloud", ""),
-      }
-    : network === "mainnet"
-    ? {
-        algod: new Algodv2("", "https://mainnet-api.algonode.cloud", ""),
-        indexer: new Indexer("", "https://mainnet-idx.algonode.cloud", ""),
-      }
-    : {
-        algod: new Algodv2("", "https://betanet-api.algonode.cloud", ""),
-        indexer: new Indexer("", "https://betanet-idx.algonode.cloud", ""),
-      };
-};
-
 export const selectLastKnownRound = (state: RootState) =>
   state.app.lastKnownRound;
+
+export const selectIsConnected = (state: RootState) => state.app.isConnected;
+
+export const selectNetworkHealth = (state: RootState) => state.app.networkHealth;
+
+/**
+ * Enhanced network clients selector with modern SDK support
+ */
+export const selectNetworkClients = (state: RootState) => {
+  const network = state.app.network;
+  const config = getNetworkConfig();
+
+  // Create AlgorandClient instance
+  const algorandClient = AlgorandClient.fromConfig({
+    algodConfig: config.algodConfig,
+    indexerConfig: config.indexerConfig,
+  });
+
+  return {
+    algorandClient,
+    algod: algorandClient.client.algod,
+    indexer: algorandClient.client.indexer,
+    network,
+  };
+};
+
+// Convenience function for notifications
+export const showNotification = (notification: { type: AlertColor; message: string }) => 
+  addNotification(notification);
 
 export const {
   setNetwork,
@@ -102,6 +140,8 @@ export const {
   addNotification,
   clearNotification,
   setLastKnownRound,
+  setIsConnected,
+  setNetworkHealth,
 } = appSlice.actions;
 
 export default appSlice.reducer;
