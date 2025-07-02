@@ -245,11 +245,9 @@ class EnhancedAlgorandClient {
 export const enhancedAlgorandClient = new EnhancedAlgorandClient();
 
 // Export types for better TypeScript support
-export type {
-  algosdk.Account as Account,
-  algosdk.Transaction as Transaction,
-  algosdk.SuggestedParams as SuggestedParams,
-};
+export type Account = algosdk.Account;
+export type Transaction = algosdk.Transaction;
+export type SuggestedParams = algosdk.SuggestedParams;
 
 export {
   algosdk,
