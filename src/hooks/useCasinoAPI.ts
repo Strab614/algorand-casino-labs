@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { casinoAPIClient, type CasinoRefundQuote, type StakingCommitment, type CreateStakingCommitmentRequest, type UpdateStakingCommitmentRequest } from "@/api/casino/enhanced";
 import { useNotification } from "./useNotification";
-import { useWallet } from "@txnlab/use-wallet-react";
+import { useWalletAdapter } from "@/hooks/useWalletAdapter";
 
 /**
  * Hook for casino leaderboard data
@@ -88,7 +88,7 @@ export const useStakingCommitments = (stakingPeriodId?: number) => {
 export const useCreateStakingCommitment = () => {
   const notification = useNotification();
   const queryClient = useQueryClient();
-  const { activeAddress } = useWallet();
+  const { activeAddress } = useWalletAdapter();
 
   return useMutation({
     mutationFn: async (params: {

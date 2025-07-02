@@ -19,7 +19,7 @@ import { setIsSignTxnOpen } from "@/features/appSlice";
 import { StakingCommitment } from "../types";
 
 import algosdk, { Algodv2 } from "algosdk";
-import { useWallet } from "@txnlab/use-wallet-react";
+import { useWalletAdapter } from "@/hooks/useWalletAdapter";
 import { bytesToBase64 } from "byte-base64";
 import { WalletNotConnected } from "@/components/WalletNotConnected";
 import { useNotification } from "@/hooks/useNotification";
@@ -43,7 +43,7 @@ export const StakingCommit = ({
   stakingCommittments,
   showEdit = false,
 }: Props) => {
-  const { activeAddress, signTransactions } = useWallet();
+  const { activeAddress, signTransactions } = useWalletAdapter();
 
   const [assets, setAssets] = useState<any[]>();
   const [isLoading, setIsLoading] = useState(false);
@@ -858,7 +858,7 @@ export const StakingCommit = ({
                         </Button>
                       </InputAdornment>
                     ),
-                  }}
+                  )}
                 />
                 <TextField
                   label="xALGO/chip"

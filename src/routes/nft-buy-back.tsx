@@ -27,7 +27,7 @@ import {
   makeAssetTransferTxnWithSuggestedParamsFromObject,
 } from "algosdk";
 import { selectNetworkClients, setIsSignTxnOpen } from "@/features/appSlice";
-import { useWallet } from "@txnlab/use-wallet-react";
+import { useWalletAdapter } from "@/hooks/useWalletAdapter";
 
 import { NftBuyBackClient } from "../clients/NftBuyBackClient";
 import * as algokit from "@algorandfoundation/algokit-utils";
@@ -46,7 +46,7 @@ interface BuybackCardProps {
 const BuybackCard = ({ onStatusChanged }: BuybackCardProps) => {
   const dispatch = useAppDispatch();
   const { algod } = useAppSelector(selectNetworkClients);
-  const { activeAddress, transactionSigner } = useWallet();
+  const { activeAddress, transactionSigner } = useWalletAdapter();
 
   const [assets, setAssets] = useState<Asset[]>();
   const [isLoading, setIsLoading] = useState(false);

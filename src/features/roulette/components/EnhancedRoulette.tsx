@@ -10,7 +10,7 @@ import {
   CardContent,
   Button,
 } from '@mui/material';
-import { useWallet } from '@txnlab/use-wallet-react';
+import { useWalletAdapter } from '@/hooks/useWalletAdapter';
 import { Header } from '@/app/Header';
 import Footer from '@/app/Footer';
 import { AppOverview } from './AppOverview';
@@ -41,7 +41,7 @@ const rouletteAppId = BigInt(import.meta.env.VITE_ROULETTE_APP_ID || '0');
 
 export const EnhancedRoulette: React.FC = () => {
   const notification = useNotification();
-  const { activeAddress } = useWallet();
+  const { activeAddress } = useWalletAdapter();
 
   // State for game flow
   const [isWaitingForEvent, setIsWaitingForEvent] = useState(false);

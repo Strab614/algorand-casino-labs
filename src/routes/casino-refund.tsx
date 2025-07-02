@@ -13,7 +13,7 @@ import {
 
 import AsaIcon from "@/components/AsaIcon";
 import { ellipseAddress } from "@/utils/utils";
-import { useWallet } from "@txnlab/use-wallet-react";
+import { useWalletAdapter } from "@/hooks/useWalletAdapter";
 import { WalletNotConnected } from "@/components/WalletNotConnected";
 import { ApiQuote, NftClaim } from "@/types/casinoRefund";
 import { useNotification } from "@/hooks/useNotification";
@@ -332,7 +332,7 @@ const QuoteCard = ({ address }: QuoteCardProps) => {
 };
 
 const CasinoRefund = () => {
-  const { activeAddress } = useWallet();
+  const { activeAddress } = useWalletAdapter();
 
   return (
     <Container sx={{ my: 2 }}>

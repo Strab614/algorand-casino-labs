@@ -48,7 +48,7 @@ import {
   Star,
 } from "@mui/icons-material";
 
-import { useWallet } from "@txnlab/use-wallet-react";
+import { useWalletAdapter } from "@/hooks/useWalletAdapter";
 import { WalletPopover } from "./WalletPopover";
 import { MockWalletButton } from "@/components/MockWalletButton";
 import DummyLogin from "@/components/DummyLogin";
@@ -58,7 +58,7 @@ const IS_MOCK_MODE = import.meta.env.VITE_MOCK_WALLET_MODE === 'true';
 
 const WalletButton = () => {
   const dispatch = useAppDispatch();
-  const { activeAddress, activeWallet } = useWallet();
+  const { activeAddress, activeWallet } = useWalletAdapter();
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
@@ -163,7 +163,7 @@ export interface Props {
 export default function ResponsiveDrawer(props: Props) {
   const theme = useTheme();
   const dispatch = useAppDispatch();
-  const { activeAddress } = IS_MOCK_MODE ? { activeAddress: null } : useWallet();
+  const { activeAddress } = useWalletAdapter();
   const [nfd, setNFD] = useState<string>();
 
   const [isSidesheetOpen, setIsSidesheetOpen] = useState(false);

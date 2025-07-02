@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { enhancedRouletteAPI } from "@/features/roulette/api/enhanced";
 import { RouletteBet } from "@/features/roulette/types";
 import { useNotification } from "./useNotification";
-import { useWallet } from "@txnlab/use-wallet-react";
+import { useWalletAdapter } from "@/hooks/useWalletAdapter";
 
 /**
  * Hook for roulette global state
@@ -44,7 +44,7 @@ export const useRouletteGame = (appId: bigint, address?: string) => {
 export const useCreateRouletteGame = (appId: bigint) => {
   const notification = useNotification();
   const queryClient = useQueryClient();
-  const { activeAddress, transactionSigner } = useWallet();
+  const { activeAddress, transactionSigner } = useWalletAdapter();
 
   return useMutation({
     mutationFn: async (bets: RouletteBet[]) => {
@@ -84,7 +84,7 @@ export const useCreateRouletteGame = (appId: bigint) => {
 export const useCompleteRouletteGame = (appId: bigint) => {
   const notification = useNotification();
   const queryClient = useQueryClient();
-  const { activeAddress, transactionSigner } = useWallet();
+  const { activeAddress, transactionSigner } = useWalletAdapter();
 
   return useMutation({
     mutationFn: async () => {
@@ -124,7 +124,7 @@ export const useCompleteRouletteGame = (appId: bigint) => {
 export const useCancelRouletteGame = (appId: bigint) => {
   const notification = useNotification();
   const queryClient = useQueryClient();
-  const { activeAddress, transactionSigner } = useWallet();
+  const { activeAddress, transactionSigner } = useWalletAdapter();
 
   return useMutation({
     mutationFn: async () => {
@@ -163,7 +163,7 @@ export const useCancelRouletteGame = (appId: bigint) => {
 export const useAddRoulettePrizePool = (appId: bigint) => {
   const notification = useNotification();
   const queryClient = useQueryClient();
-  const { activeAddress, transactionSigner } = useWallet();
+  const { activeAddress, transactionSigner } = useWalletAdapter();
 
   return useMutation({
     mutationFn: async (amount: bigint) => {
@@ -202,7 +202,7 @@ export const useAddRoulettePrizePool = (appId: bigint) => {
 export const useDeleteRoulette = (appId: bigint) => {
   const notification = useNotification();
   const queryClient = useQueryClient();
-  const { activeAddress, transactionSigner } = useWallet();
+  const { activeAddress, transactionSigner } = useWalletAdapter();
 
   return useMutation({
     mutationFn: async () => {

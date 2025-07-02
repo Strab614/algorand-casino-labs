@@ -14,7 +14,7 @@ import { RouletteBet, RouletteGameCompleted } from "@/features/roulette/types";
 
 import { Container, Typography, Box, Stack, Alert } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useWallet } from "@txnlab/use-wallet-react";
+import { useWalletAdapter } from "@/hooks/useWalletAdapter";
 import { AppOverview } from "./AppOverview";
 
 import AmericanRouletteTable from "./AmericanRouletteTable";
@@ -41,7 +41,7 @@ export const Roulette = () => {
   const notification = useNotification();
   // const lastKnownRound = useAppSelector(selectLastKnownRound);
   const dispatch = useAppDispatch();
-  const { activeAddress, transactionSigner } = useWallet();
+  const { activeAddress, transactionSigner } = useWalletAdapter();
 
   // waiting for notification of game completion event
   const [isWaitingForEvent, setIsWaitingForEvent] = useState(false);

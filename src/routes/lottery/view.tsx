@@ -1,5 +1,5 @@
 import { Stack } from "@mui/material";
-import { useWallet } from "@txnlab/use-wallet-react";
+import { useWalletAdapter } from "@/hooks/useWalletAdapter";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAppDispatch } from "../../app/hooks";
@@ -41,7 +41,7 @@ const indexer = new Indexer(
 const LotteryView = () => {
   const { appId } = useParams();
   const { applications, manager, currentRound } = useLottery();
-  const { activeAddress } = useWallet();
+  const { activeAddress } = useWalletAdapter();
 
   const [deleted, setDeleted] = useState<boolean>();
 

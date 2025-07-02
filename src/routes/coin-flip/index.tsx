@@ -12,14 +12,14 @@ import { useAppSelector } from "@/app/hooks";
 import { selectNetworkClients } from "@/features/appSlice";
 import { CoinFlipGame, CoinFlipGlobalState } from "@/features/coin-flip/types";
 import { ManagerDialog } from "@/features/coin-flip/components/ManagerDialog";
-import { useWallet } from "@txnlab/use-wallet-react";
+import { useWalletAdapter } from "@/hooks/useWalletAdapter";
 
 const CoinFlipIndex = () => {
   const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
   const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false);
   const [isManagerDialogOpen, setIsManagerDialogOpen] = useState(false);
 
-  const { activeAddress, transactionSigner } = useWallet();
+  const { activeAddress, transactionSigner } = useWalletAdapter();
   const { algod } = useAppSelector(selectNetworkClients);
   const [globalState, setGlobalState] = useState<CoinFlipGlobalState | null>(
     null
