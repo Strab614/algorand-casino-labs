@@ -858,7 +858,7 @@ export const StakingCommit = ({
                         </Button>
                       </InputAdornment>
                     ),
-                  )}
+                  }}
                 />
                 <TextField
                   label="xALGO/chip"
