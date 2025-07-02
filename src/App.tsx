@@ -75,7 +75,7 @@ const queryClient = new QueryClient();
 // Check if we're in mock mode
 const IS_MOCK_MODE = import.meta.env.VITE_MOCK_WALLET_MODE === 'true';
 
-function App() {
+function AppContent() {
   const [isLoading, setIsLoading] = React.useState(false);
   const dispatch = useAppDispatch();
 
@@ -109,44 +109,58 @@ function App() {
   }, [dispatch]);
 
   return (
+    <ThemeProvider theme={darkTheme}>
+      <QueryClientProvider client={queryClient}>
+        <CssBaseline />
+        <Notification />
+        <ConnectWalletModal />
+        <SignTransactionModal />
+        <BrowserRouter>
+          <TopBar>
+            <Routes>
+              <Route path="/nftBuyback" element={<NFTBuyback />} />
+              <Route path="/nftRefund" element={<CasinoRefund />} />
+              <Route path="/house" element={<HouseStaking />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+
+              <Route path="/lottery" element={<LotteryLayout />}>
+                <Route path="" element={<LotteryIndex />} />
+                <Route path=":appId" element={<LotteryView />} />
+              </Route>
+
+              <Route path="coinFlip" element={<CoinFlipIndex />} />
+              <Route path="roulette" element={<RouletteIndex />} />
+
+              <Route path="" element={<Navigate to="/lottery" />} />
+              <Route path="/help" element={<Help />} />
+              <Route
+                path="*"
+                element={
+                  <Container sx={{ p: 2 }}>
+                    <p>Whatever you are looking for, it is not here!</p>
+                  </Container>
+                }
+              />
+            </Routes>
+          </TopBar>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+}
+
+function App() {
+  if (IS_MOCK_MODE) {
+    return (
+      <MockWalletProvider>
+        <AppContent />
+      </MockWalletProvider>
+    );
+  }
+
+  return (
     <WalletProvider manager={walletManager}>
-      <ThemeProvider theme={darkTheme}>
-        <QueryClientProvider client={queryClient}>
-          <CssBaseline />
-          <Notification />
-          <ConnectWalletModal />
-          <SignTransactionModal />
-          <BrowserRouter>
-            <TopBar>
-              <Routes>
-                <Route path="/nftBuyback" element={<NFTBuyback />} />
-                <Route path="/nftRefund" element={<CasinoRefund />} />
-                <Route path="/house" element={<HouseStaking />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
-
-                <Route path="/lottery" element={<LotteryLayout />}>
-                  <Route path="" element={<LotteryIndex />} />
-                  <Route path=":appId" element={<LotteryView />} />
-                </Route>
-
-                <Route path="coinFlip" element={<CoinFlipIndex />} />
-                <Route path="roulette" element={<RouletteIndex />} />
-
-                <Route path="" element={<Navigate to="/lottery" />} />
-                <Route path="/help" element={<Help />} />
-                <Route
-                  path="*"
-                  element={
-                    <Container sx={{ p: 2 }}>
-                      <p>Whatever you are looking for, it is not here!</p>
-                    </Container>
-                  }
-                />
-              </Routes>
-            </TopBar>
-          </BrowserRouter>
-        </QueryClientProvider>
-      </ThemeProvider>
+      <AppContent />
     </WalletProvider>
   );
 }
