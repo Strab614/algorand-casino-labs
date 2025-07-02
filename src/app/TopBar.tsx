@@ -32,6 +32,8 @@ import CasinoIcon from "@mui/icons-material/Casino";
 import TableBarIcon from "@mui/icons-material/TableBar";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 import PriceTicker from "@/features/price/PriceTicker";
 
@@ -49,6 +51,8 @@ import {
 import { useWallet } from "@txnlab/use-wallet-react";
 import { WalletPopover } from "./WalletPopover";
 import { MockWalletButton } from "@/components/MockWalletButton";
+import DummyLogin from "@/components/DummyLogin";
+import { useDummyAuth } from "@/hooks/useDummyAuth";
 
 const IS_MOCK_MODE = import.meta.env.VITE_MOCK_WALLET_MODE === 'true';
 
@@ -163,8 +167,11 @@ export default function ResponsiveDrawer(props: Props) {
   const [nfd, setNFD] = useState<string>();
 
   const [isSidesheetOpen, setIsSidesheetOpen] = useState(false);
-
   const [isGamesOpen, setIsGamesOpen] = useState(false);
+
+  // Dummy authentication for testing
+  const { user, isAuthenticated, login, logout } = useDummyAuth();
+  const [isDummyLoginOpen, setIsDummyLoginOpen] = useState(false);
 
   const { window, children } = props;
 
@@ -191,6 +198,14 @@ export default function ResponsiveDrawer(props: Props) {
 
   const handleDrawerToggle = () => {
     setIsSidesheetOpen(!isSidesheetOpen);
+  };
+
+  const handleDummyLogin = (credentials: { username: string; password: string; isAdmin: boolean }) => {
+    const success = login(credentials);
+    if (!success) {
+      // Handle login failure
+      console.log('Login failed');
+    }
   };
 
   const drawer = (
@@ -315,6 +330,43 @@ export default function ResponsiveDrawer(props: Props) {
           </ListItem>
         </MuiLink>
       </List>
+
+      {/* Dummy Login Section - Can be commented out for production */}
+      {IS_MOCK_MODE && (
+        <>
+          <Divider />
+          <List>
+            <ListItem>
+              <ListItemIcon>
+                {isAuthenticated ? <LogoutIcon /> : <LoginIcon />}
+              </ListItemIcon>
+              {isAuthenticated ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                  <Typography variant="body2">
+                    Logged in as: {user?.username}
+                    {user?.isAdmin && ' (Admin)'}
+                  </Typography>
+                  <Button
+                    size="small"
+                    onClick={logout}
+                    sx={{ mt: 1, alignSelf: 'flex-start' }}
+                  >
+                    Logout
+                  </Button>
+                </Box>
+              ) : (
+                <Button
+                  onClick={() => setIsDummyLoginOpen(true)}
+                  sx={{ width: '100%' }}
+                >
+                  Dummy Login
+                </Button>
+              )}
+            </ListItem>
+          </List>
+        </>
+      )}
+
       <Box
         component={"div"}
         sx={{
@@ -432,6 +484,15 @@ export default function ResponsiveDrawer(props: Props) {
         <Toolbar />
         {children}
       </Box>
+
+      {/* Dummy Login Modal - Can be commented out for production */}
+      {IS_MOCK_MODE && (
+        <DummyLogin
+          open={isDummyLoginOpen}
+          onClose={() => setIsDummyLoginOpen(false)}
+          onLogin={handleDummyLogin}
+        />
+      )}
     </Box>
   );
 }
