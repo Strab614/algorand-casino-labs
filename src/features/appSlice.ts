@@ -32,6 +32,13 @@ export interface AppState {
     indexer: boolean;
     lastChecked: number;
   };
+
+  // performance metrics
+  performanceMetrics: {
+    avgBlockTime: number;
+    tps: number;
+    lastUpdated: number;
+  };
 }
 
 const initialState: AppState = {
@@ -51,6 +58,12 @@ const initialState: AppState = {
     algod: false,
     indexer: false,
     lastChecked: 0,
+  },
+
+  performanceMetrics: {
+    avgBlockTime: 2.9,
+    tps: 0,
+    lastUpdated: 0,
   },
 };
 
@@ -88,6 +101,12 @@ export const appSlice = createSlice({
         lastChecked: Date.now(),
       };
     },
+    setPerformanceMetrics: (state, action) => {
+      state.performanceMetrics = {
+        ...action.payload,
+        lastUpdated: Date.now(),
+      };
+    },
   },
 });
 
@@ -108,6 +127,8 @@ export const selectIsConnected = (state: RootState) => state.app.isConnected;
 
 export const selectNetworkHealth = (state: RootState) => state.app.networkHealth;
 
+export const selectPerformanceMetrics = (state: RootState) => state.app.performanceMetrics;
+
 /**
  * Enhanced network clients selector with modern SDK support
  */
@@ -115,7 +136,7 @@ export const selectNetworkClients = (state: RootState) => {
   const network = state.app.network;
   const config = getNetworkConfig();
 
-  // Create AlgorandClient instance
+  // Create AlgorandClient instance with enhanced configuration
   const algorandClient = AlgorandClient.fromConfig({
     algodConfig: config.algodConfig,
     indexerConfig: config.indexerConfig,
@@ -142,6 +163,7 @@ export const {
   setLastKnownRound,
   setIsConnected,
   setNetworkHealth,
+  setPerformanceMetrics,
 } = appSlice.actions;
 
 export default appSlice.reducer;

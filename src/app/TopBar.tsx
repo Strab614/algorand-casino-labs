@@ -38,17 +38,16 @@ import PriceTicker from "@/features/price/PriceTicker";
 import { ellipseAddress, lookupNFDByAddress } from "@/utils/utils";
 
 import AsaIcon from "@/components/AsaIcon";
+import NetworkStatus from "@/components/NetworkStatus";
 import {
   CatchingPokemon,
   House,
   LocalActivity,
   Star,
-  StarBorder,
 } from "@mui/icons-material";
 
 import { useWallet } from "@txnlab/use-wallet-react";
 import { WalletPopover } from "./WalletPopover";
-import AlgorandNetwork from "./NetworkSelect";
 import { MockWalletButton } from "@/components/MockWalletButton";
 
 const IS_MOCK_MODE = import.meta.env.VITE_MOCK_WALLET_MODE === 'true';
@@ -246,7 +245,7 @@ export default function ResponsiveDrawer(props: Props) {
           >
             <ListItemButton sx={{ pl: 4 }}>
               <ListItemIcon>
-                <StarBorder />
+                <Star />
               </ListItemIcon>
               <ListItemText primary="Roulette" />
             </ListItemButton>
@@ -337,7 +336,7 @@ export default function ResponsiveDrawer(props: Props) {
             columnGap: 2,
           }}
         >
-          <AlgorandNetwork />
+          <NetworkStatus />
           <PriceTicker />
         </Box>
       </Box>
@@ -374,7 +373,7 @@ export default function ResponsiveDrawer(props: Props) {
               fontWeight={400}
               sx={{ display: { xs: "none", md: "block" }, paddingLeft: 1 }}
             >
-              Algorand Casino
+              Algorand Casino Labs
             </Typography>
           </div>
           <WalletButton />
